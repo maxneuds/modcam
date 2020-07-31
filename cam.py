@@ -21,8 +21,9 @@ class Camcap:
     # initialize the video camera stream and read the first frame
     # from the stream
     self.stream = cv2.VideoCapture(src)
-    self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-    self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 960)
+    self.stream.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+    self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
     self.stream.set(cv2.CAP_PROP_FPS, 30)
     (self.grabbed, self.frame) = self.stream.read()
     # initialize the variable used to indicate if the thread should
@@ -58,19 +59,19 @@ class Camcap:
 ndev = get_args()
 cam = f'/dev/video{ndev}'
 cap = Camcap(src=cam).start()
-height, width = 720, 960
+# setup the fake camera
+width, height = 1920, 1080
+fake_w, fake_h = 1920, 1080
+fake = pyfakewebcam.FakeWebcam('/dev/video20', fake_w, fake_h)
+# fake = pyfakewebcam.FakeWebcam('/dev/video20', width, height)
 # define margins
 m_left = int(0.25 * width)
 m_right = int(0.25 * width)
-m_top = int(0.1 * height)
-m_bot = int(0.4 * height)
+m_top = int(0.2 * height)
+m_bot = int(0.2 * height)
 crop_width = width - m_left - m_right
 crop_height = height - m_top - m_bot
-# setup the fake camera
-fake_w = 1920
-fake_h = 1080
-# fake = pyfakewebcam.FakeWebcam('/dev/video20', width, height)
-fake = pyfakewebcam.FakeWebcam('/dev/video20', fake_w, fake_h)
+
 
 # define locations
 file_name = 'cam2.jpg'
@@ -119,11 +120,11 @@ while True:
   # closing = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel)
 
   # show image
-  # try:
-  #   cv2.imshow("cam", closing)
-  # except cv2.error:
-  #   continue
-  # key = cv2.waitKey(1)
+  try:
+    cv2.imshow("cam", frame)
+  except cv2.error:
+    continue
+  key = cv2.waitKey(1)
 
   # save capture to file
   # im_save(im, file_name)
